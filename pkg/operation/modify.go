@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"time"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
@@ -18,10 +17,10 @@ type Handler struct {
 }
 
 type Employee struct {
-	ID     string `bson:"_id" json:"id"`
-	Name   string `json:"name" bson:"name"`
-	Phone  int64  `json:"phone" bson:"phone"`
-	Gender string `json:"gender" bson:"gender"`
+	ID     bson.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
+	Name   string        `json:"name" bson:"name"`
+	Phone  int64         `json:"phone" bson:"phone"`
+	Gender string        `json:"gender" bson:"gender"`
 }
 
 func (h *Handler) GetAllEmployee(w http.ResponseWriter, r *http.Request) {
@@ -58,7 +57,6 @@ func (h *Handler) InsertItem(w http.ResponseWriter, r *http.Request) {
 	var data Employee
 
 	err := json.NewDecoder(r.Body).Decode(&data)
-	data.ID = primitive.NewObjectID().Hex()
 	if err != nil {
 		fmt.Println("error while parsing data: ", err)
 		http.Error(w, "error while parsing data", http.StatusBadRequest)
@@ -84,7 +82,7 @@ func (h *Handler) DeleteOne(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req struct {
-		ID string `bson:"_id" json:"id"`
+		ID bson.ObjectID `bson:"_id" json:"id"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
